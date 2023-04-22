@@ -23,7 +23,7 @@ export function DrinkForms() {
     try {
       const response = await axios.get(`${API_ENDPOINT}models/58d3bcf97c6b1644db73ad12`, {
         headers: {
-          "Authorization": `Bearer ${API_KEY}`,
+          'Authorization': `Token ${API_KEY}`,
           'Content-Type': `application/vnd.api+json`
         }
       });
@@ -37,6 +37,8 @@ export function DrinkForms() {
 
   useEffect(() => {
     getModelMetaData();
+    handleSubmit();
+
   }, []);
   console.log("modelMetaData updated:", modelMetaData);
 
@@ -45,25 +47,48 @@ export function DrinkForms() {
     setFormInput({ ...formInput, [name]: value });
   }
 
+
+
+  //handle  from  Input Submit 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmit(true);
     try {
-      const response = await axios.post(`${API_ENDPOINT}decision/58d3bcf97c6b1644db73ad12`, modelMetaData, {
-        headers: {
-          'Authorization': `Barier ${API_KEY}`,
-          'Content-Type': "application/vnd.api+json",
-        }
-      });
-
-      setDecision(response.data);
-      console.log("tsiki",response)
-      setSuccess(true);
-
-
-    } catch (error) {
-      console.log(error);
-    }
+        const response = await axios.post(
+            `https://api.up2tom.com/v3/decision/58d3bcf97c6b1644db73ad12`,
+          JSON.stringify({
+            data: {
+                type:"scenario",
+              input: [
+                { name: "INPUTVAR1", value: "45.0" },
+                { name: "INPUTVAR2", value: "Male" },
+                { name: "INPUTVAR3", value: "45" },
+                { name: "INPUTVAR4", value: "No" },
+                { name: "INPUTVAR5", value: "Morning" },
+                { name: "INPUTVAR6", value: "No" },
+                { name: "INPUTVAR7", value: "Yes" },
+                { name: "INPUTVAR8", value: "3" },
+                { name: "INPUTVAR9", value: "2" },
+              ],
+            },
+          }),
+          {
+            headers: {
+              "Authorization": `Token 9307bfd5fa011428ff198bb37547f979`,
+              "Content-Type": "application/vnd.api+json",
+            },
+          }
+        );
+      
+        setDecision(response.data);
+        console.log("response data:", response.data);
+        setSuccess(true);
+      } catch (error) {
+        console.error(error);
+        throw new Error(error.message);
+      }
+      
+      
   }
 
 
@@ -90,7 +115,6 @@ const header = {
     marginTop:"34px"
 
   };
-
 
 
 

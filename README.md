@@ -21,10 +21,10 @@ Open new Terminal do not cancel the server leave it running and add a new Termin
  ## Available Scripts
 
 CD from the root directory
-### cd client  
+### `cd client`  
 
 Run the Web App
- ### npm run start  
+ ### ` npm run start`  
 
 Launches the client  in the Browser watch mode.
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
