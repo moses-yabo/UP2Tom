@@ -1,6 +1,6 @@
 # Getting to the server [Backend] and Running The Server
 
-This Server is Built [Express js](https://github.com/expressjs).
+This Server is Built using [Express js](https://github.com/expressjs).
 
 ## Available Scripts
 
