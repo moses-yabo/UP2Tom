@@ -1,4 +1,4 @@
-import { DrinkForms } from "../src/components/DrinkForm";
+import  DrinkForms  from "../src/components/DrinkForm";
 import "./App.css";
 
 

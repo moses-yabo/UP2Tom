@@ -118,9 +118,10 @@ label{
 
 .get__Model__btn{
   border: #52c41a solid 34px;
-position: absolute;
 justify-content: center;
 max-width: max-content;
 left:56rem;
 top: 17rem
 }
+
+

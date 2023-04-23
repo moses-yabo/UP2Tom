@@ -1,23 +1,16 @@
 import "../App.css";
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { API_ENDPOINT, API_KEY, MODEL_ID } from "../config";
 
 
-export function DrinkForms() {
-
-  const [modelMetaData, setModelMetaData] = useState(null);
-  const [formInput, setFormInput] = useState([{
-    data: {
-      type: "scenario",
-      attributes: {
-        input: [1.0, "Yes", "Green", 4.0]
-        }
-    }
-  }]);
-  const [decision, setDecision] = useState('');
-  const [submitting, setSubmit] = useState(false);
-  const [success, setSuccess] = useState(false);
+ function DrinkForms() {
+    const [decision, setDecision] = useState('');
+    const [submitting, setSubmit] = useState(false);
+    const [formInput, setFormInput] = useState(false);
+    const [success, setSuccess] = useState(false);
+   const [modelMetaData, setModelMetaData] = useState(null);
+   const InputRef = useRef([]);
 
   async function getModelMetaData() {
     try {
@@ -43,52 +36,47 @@ export function DrinkForms() {
   console.log("modelMetaData updated:", modelMetaData);
 
   const handleInputChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value } = event?.target  ?? undefined;
     setFormInput({ ...formInput, [name]: value });
   }
 
-
-
-  //handle  from  Input Submit 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event?.preventDefault();
     setSubmit(true);
     try {
-        const response = await axios.post(
-            `https://api.up2tom.com/v3/decision/58d3bcf97c6b1644db73ad12`,
-          JSON.stringify({
-            data: {
-                type:"scenario",
-              input: [
-                { name: "INPUTVAR1", value: "45.0" },
-                { name: "INPUTVAR2", value: "Male" },
-                { name: "INPUTVAR3", value: "45" },
-                { name: "INPUTVAR4", value: "No" },
-                { name: "INPUTVAR5", value: "Morning" },
-                { name: "INPUTVAR6", value: "No" },
-                { name: "INPUTVAR7", value: "Yes" },
-                { name: "INPUTVAR8", value: "3" },
-                { name: "INPUTVAR9", value: "2" },
-              ],
-            },
-          }),
-          {
-            headers: {
-              "Authorization": `Token 9307bfd5fa011428ff198bb37547f979`,
-              "Content-Type": "application/vnd.api+json",
-            },
-          }
-        );
-      
-        setDecision(response.data);
-        console.log("response data:", response.data);
-        setSuccess(true);
-      } catch (error) {
-        console.error(error);
-        throw new Error(error.message);
-      }
-      
-      
+        let data= {};
+       const {name} = modelMetaData?.metadata?.attributes;
+     InputRef.current.map((input)=>{
+       return data.assign({
+            "data": {
+              "type": "model",
+              "attributes": {
+                "input": {
+                  [name]: input.current.value,
+                  
+                }
+              }
+            }
+          })
+     })
+     
+      const response = await axios.post(`${API_ENDPOINT}decision/58d3bcf97c6b1644db73ad12`, 
+      data
+      , {
+        headers: {
+          'Authorization': `Barier ${API_KEY}`,
+          'Content-Type': "application/vnd.api+json",
+        }
+      });
+
+      setDecision(response.data);
+      console.log("tsiki",response)
+      setSuccess(true);
+
+
+    } catch (error) {
+        throw Error(error)
+    }
   }
 
 
@@ -104,35 +92,52 @@ const buttonStyles = {
     marginTop:"34px"
 
   };
+const buttonWrapper = {
+        "max-width":"100%",
+        display:"flex",
+         "justify-content":"flex-end",
+        "align-item":"center",
+        "margin-left":"230px",
+        "margin-top":"-120px",
+        "max-height":"5rem",
+        position:"relative",
+        bottom: "-6rem",
+        left: "-0.7rem"
+
+
+
+  };
 const header = {
     bgColor:"#fff",
     border: "none",
-    borderRadius: "5px",
+    "border-radius": "5px",
     padding: "10px 20px",
     transition:"all 0.3s ease-in-out",
     width: "100%",
-    fontSize:"17px",
-    marginTop:"34px"
+    "font-size":"17px",
+    "margin-top":"34px"
 
   };
-
-
-
-
 
 
   return (
     <div className="card  card-flex">
       <div className="card-body">
-        <h3 className="card-title" style={header}>{modelMetaData?.name ?? "execrise"}</h3>
+        <h3 className="card-title" style={header}>{modelMetaData?.name ?? "Click to Load Model.... 😊 "}</h3>
         <div className="form-row">
             {
             !!modelMetaData ?
-          (<form className="form-group col-md-6" >
+          (<form className="form-group col-md-6"  onSubmit={handleInputChange}>
             {modelMetaData?.metadata?.attributes.map((attr,index)=>{
                     return <>
                     <label htmlFor={attr?.name ?? ""}>{attr?.name ?? ""}</label>
-                    <input type="text" className="form-control" id="inputName" placeholder={attr?.question ?? ""} key={index}/>
+                    <input 
+                    type="text" 
+                    className="form-control" 
+                    id="inputName"
+                    ref={InputRef} 
+                    placeholder={attr?.question ?? ""} 
+                    key={index}/>
                     </>
             })}
 
@@ -141,12 +146,14 @@ const header = {
         
             </form>)
             :(
-            <button onClick={() => getModelMetaData()} style={buttonStyles} className="get__Model__btn">Load Model</button>
+                <div style={buttonWrapper}>
+            <button style={buttonStyles} className="get__Model__btn">Load Model</button>
+            </div>
              )
           }
         </div>
             
-        {!success ? 
+        {success && !!modelMetaData? 
     `DECISION :.... ${decision?? "siso babas"}`
     :""
     }
@@ -159,7 +166,7 @@ const header = {
 }
 
 
-
+export default DrinkForms;
 
 
 
